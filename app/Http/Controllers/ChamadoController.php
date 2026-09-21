@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ChamadoRequest;
 use App\Models\Chamado;
 use Illuminate\Http\JsonResponse;
+use App\Actions\CriarChamadoAction;
 use Illuminate\Http\Request;
 
 class ChamadoController extends Controller
@@ -22,21 +23,11 @@ class ChamadoController extends Controller
         return response()->json($chamados);
     }
 
-    public function store(ChamadoRequest $request): JsonResponse
-    {
-        $dados = $request->validated();
-
-        $chamado = Chamado::create([
-            'titulo' => $dados['titulo'],
-            'descricao' => $dados['descricao'],
-            'prioridade' => $dados['prioridade'],
-            'usuario_id' => $dados['usuario_id'],
-            'categoria_id' => $dados['categoria_id'],
-            'status' => 'aberto',
-            'tecnico_id' => null,
-            'data_abertura' => now(),
-        ]);
-
+    public function store(
+        ChamadoRequest $request,
+        CriarChamadoAction $action
+    ): JsonResponse {
+        $chamado = $action->execute($request->validated());
         return response()->json($chamado, 201);
     }
 
