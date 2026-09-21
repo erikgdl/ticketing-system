@@ -17,7 +17,7 @@ class CategoriaController extends Controller
     }
 
 
-    public function store(Request $request) : JsonResponse
+    public function store(CategoriaRequest $request) : JsonResponse
     {
         $categoria = Categoria::create($request->validated());
 
