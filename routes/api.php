@@ -13,3 +13,5 @@ Route::apiResource('categorias', CategoriaController::class);
 Route::apiResource('chamados', ChamadoController::class);
 
 Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir']);
+
+Route::post('chamados/{chamado}/comentarios', [ChamadoController::class, 'adicionarComentario']);
