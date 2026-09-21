@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoriaRequest extends FormRequest
+class FinalizarChamadoRequest extends FormRequest
 {
 
     public function authorize(): bool
@@ -17,8 +17,7 @@ class CategoriaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:255'],
-            'descricao' => ['nullable', 'string'],
+            'tecnico_id' => ['required', 'exists:users,id'],
         ];
     }
 }

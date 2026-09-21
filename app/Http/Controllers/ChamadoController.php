@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Actions\AssumirChamadoAction;
+use App\Actions\FinalizarChamadoAction;
 use App\Http\Requests\AssumirChamadoRequest;
 use App\Http\Requests\ChamadoRequest;
+use App\Http\Requests\FinalizarChamadoRequest;
 use App\Models\Chamado;
 use App\Actions\AdicionarComentarioAction;
 use App\Http\Requests\AdicionarComentarioRequest;
@@ -91,5 +93,21 @@ class ChamadoController extends Controller
 
         return response()->json($chamado);
     }
+
+    public function finalizar(
+        FinalizarChamadoRequest $request,
+        Chamado $chamado,
+        FinalizarChamadoAction $action
+    ): JsonResponse {
+        $dados = $request->validated();
+
+        $chamado = $action->execute(
+            $chamado,
+            $dados['tecnico_id']
+        );
+
+        return response()->json($chamado);
+    }
+
 
 }
