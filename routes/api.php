@@ -11,3 +11,5 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('categorias', CategoriaController::class);
 Route::apiResource('chamados', ChamadoController::class);
+
+Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir']);

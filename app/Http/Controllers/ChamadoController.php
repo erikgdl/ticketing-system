@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AssumirChamadoAction;
+use App\Http\Requests\AssumirChamadoRequest;
 use App\Http\Requests\ChamadoRequest;
 use App\Models\Chamado;
 use Illuminate\Http\JsonResponse;
@@ -67,4 +69,16 @@ class ChamadoController extends Controller
             'message' => 'Chamado deletado com sucesso.'
         ]);
     }
+
+    public function assumir(
+        AssumirChamadoRequest $request,
+        Chamado $chamado,
+        AssumirChamadoAction $action
+    ): JsonResponse {
+        $dados = $request->validated();
+
+        $chamado = $action->execute($chamado, $dados['tecnico_id']);
+        return response()->json($chamado);
+    }
+
 }
