@@ -26,7 +26,7 @@ class AdicionarComentarioAction
             ]);
 
             HistoricoChamado::create([
-                'chamado_id' => $comentario->id,
+                'chamado_id' => $chamado->id,
                 'usuario_id' => $dados['usuario_id'],
                 'acao' => 'Comentário adicionado',
                 'valor_anterior' => null,
