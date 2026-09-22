@@ -27,3 +27,5 @@ Thumbs.db
 /bootstrap/cache/
 /storage/app/
 /storage/framework/
+
+/docs/
