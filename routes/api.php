@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoriaController;
-use \App\Http\Controllers\ChamadoController;
+use App\Http\Controllers\ChamadoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +17,5 @@ Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir'])
 Route::post('chamados/{chamado}/comentarios', [ChamadoController::class, 'adicionarComentario']);
 
 Route::post('chamados/{chamado}/finalizar', [ChamadoController::class, 'finalizar']);
+
+Route::post('chamados/{chamado}/cancelar', [ChamadoController::class, 'cancelar']);
