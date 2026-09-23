@@ -67,6 +67,33 @@ class CancelarChamadoTest extends TestCase
         ]);
     }
 
+    public function test_solicitante_nao_pode_cancelar_chamado_de_outro_solicitante(): void
+    {
+        $solicitanteResponsavel = User::factory()->create(['tipo' => 'solicitante']);
+        $outroSolicitante = User::factory()->create(['tipo' => 'solicitante']);
+        $chamado = $this->criarChamado($solicitanteResponsavel);
+
+        $this->postJson("/api/chamados/{$chamado->id}/cancelar", [
+            'usuario_id' => $outroSolicitante->id,
+        ])->assertUnprocessable()->assertJsonValidationErrors('usuario_id');
+
+        $this->assertDatabaseHas('chamados', [
+            'id' => $chamado->id,
+            'status' => 'aberto',
+            'data_fechamento' => null,
+        ]);
+    }
+
+    public function test_cancelamento_exige_usuario_existente(): void
+    {
+        $solicitante = User::factory()->create(['tipo' => 'solicitante']);
+        $chamado = $this->criarChamado($solicitante);
+
+        $this->postJson("/api/chamados/{$chamado->id}/cancelar", [
+            'usuario_id' => 999,
+        ])->assertUnprocessable()->assertJsonValidationErrors('usuario_id');
+    }
+
     public function test_chamado_finalizado_nao_pode_ser_cancelado(): void
     {
         $solicitante = User::factory()->create(['tipo' => 'solicitante']);
