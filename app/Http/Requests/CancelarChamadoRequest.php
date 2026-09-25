@@ -13,8 +13,6 @@ class CancelarChamadoRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'usuario_id' => ['required', 'exists:users,id'],
-        ];
+        return [];
     }
 }

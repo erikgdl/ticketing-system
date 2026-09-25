@@ -14,18 +14,25 @@ use App\Http\Requests\ChamadoRequest;
 use App\Http\Requests\FinalizarChamadoRequest;
 use App\Models\Chamado;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ChamadoController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $chamados = Chamado::with([
+        $query = Chamado::with([
             'usuario',
             'tecnico',
             'categoria',
-            'comentarios',
+            'comentarios.usuario',
             'historicos',
-        ])->get();
+        ]);
+
+        if ($request->user()->tipo === 'solicitante') {
+            $query->where('usuario_id', $request->user()->id);
+        }
+
+        $chamados = $query->latest('id')->get();
 
         return response()->json($chamados);
     }
@@ -34,18 +41,25 @@ class ChamadoController extends Controller
         ChamadoRequest $request,
         CriarChamadoAction $action
     ): JsonResponse {
-        $chamado = $action->execute($request->validated());
+        abort_unless($request->user()->tipo === 'solicitante', 403, 'Apenas solicitantes podem abrir chamados.');
+
+        $chamado = $action->execute([
+            ...$request->validated(),
+            'usuario_id' => $request->user()->id,
+        ]);
 
         return response()->json($chamado, 201);
     }
 
-    public function show(Chamado $chamado): JsonResponse
+    public function show(Request $request, Chamado $chamado): JsonResponse
     {
+        $this->autorizarVisualizacao($request, $chamado);
+
         $chamado->load([
             'usuario',
             'tecnico',
             'categoria',
-            'comentarios',
+            'comentarios.usuario',
             'historicos',
         ]);
 
@@ -54,25 +68,32 @@ class ChamadoController extends Controller
 
     public function update(ChamadoRequest $request, Chamado $chamado): JsonResponse
     {
+        abort_unless($request->user()->tipo === 'admin', 403, 'Apenas administradores podem editar chamados.');
+
         $dados = $request->validated();
 
         $chamado->update([
             'titulo' => $dados['titulo'],
             'descricao' => $dados['descricao'],
             'prioridade' => $dados['prioridade'],
-            'usuario_id' => $dados['usuario_id'],
             'categoria_id' => $dados['categoria_id'],
         ]);
 
         return response()->json($chamado);
     }
 
-    public function destroy(Chamado $chamado): JsonResponse
+    public function destroy(Request $request, Chamado $chamado): JsonResponse
     {
+        abort_unless(
+            in_array($request->user()->tipo, ['tecnico', 'admin'], true),
+            403,
+            'Apenas técnicos e administradores podem remover chamados da lista.'
+        );
+
         $chamado->delete();
 
         return response()->json([
-            'message' => 'Chamado deletado com sucesso.',
+            'message' => 'Chamado removido da lista com sucesso.',
         ]);
     }
 
@@ -81,9 +102,9 @@ class ChamadoController extends Controller
         Chamado $chamado,
         AssumirChamadoAction $action
     ): JsonResponse {
-        $dados = $request->validated();
+        abort_unless($request->user()->tipo === 'tecnico', 403, 'Apenas técnicos podem assumir chamados.');
 
-        $chamado = $action->execute($chamado, $dados['tecnico_id']);
+        $chamado = $action->execute($chamado, $request->user()->id);
 
         return response()->json($chamado);
     }
@@ -93,7 +114,12 @@ class ChamadoController extends Controller
         Chamado $chamado,
         AdicionarComentarioAction $action
     ): JsonResponse {
-        $chamado = $action->execute($chamado, $request->validated());
+        $this->autorizarVisualizacao($request, $chamado);
+
+        $chamado = $action->execute($chamado, [
+            ...$request->validated(),
+            'usuario_id' => $request->user()->id,
+        ]);
 
         return response()->json($chamado);
     }
@@ -103,11 +129,11 @@ class ChamadoController extends Controller
         Chamado $chamado,
         FinalizarChamadoAction $action
     ): JsonResponse {
-        $dados = $request->validated();
+        abort_unless($request->user()->tipo === 'tecnico', 403, 'Apenas técnicos podem finalizar chamados.');
 
         $chamado = $action->execute(
             $chamado,
-            $dados['tecnico_id']
+            $request->user()->id
         );
 
         return response()->json($chamado);
@@ -118,13 +144,24 @@ class ChamadoController extends Controller
         Chamado $chamado,
         CancelarChamadoAction $action
     ): JsonResponse {
-        $dados = $request->validated();
+        abort_unless($request->user()->tipo === 'admin', 403, 'Apenas administradores podem cancelar chamados.');
 
         $chamado = $action->execute(
             $chamado,
-            $dados['usuario_id']
+            $request->user()->id
         );
 
         return response()->json($chamado);
+    }
+
+    private function autorizarVisualizacao(Request $request, Chamado $chamado): void
+    {
+        if ($request->user()->tipo === 'solicitante') {
+            abort_unless(
+                $chamado->usuario_id === $request->user()->id,
+                403,
+                'Você não tem acesso a este chamado.'
+            );
+        }
     }
 }

@@ -17,6 +17,14 @@ abstract class ApiTestCase extends TestCase
         return User::factory()->create(['tipo' => $tipo]);
     }
 
+    protected function autenticar(string $tipo = 'solicitante'): User
+    {
+        $usuario = $this->criarUsuario($tipo);
+        $this->actingAs($usuario, 'sanctum');
+
+        return $usuario;
+    }
+
     protected function criarCategoria(array $atributos = []): Categoria
     {
         return Categoria::create(array_merge([

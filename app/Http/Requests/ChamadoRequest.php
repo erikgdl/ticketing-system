@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ChamadoRequest extends FormRequest
@@ -18,7 +17,6 @@ class ChamadoRequest extends FormRequest
             'titulo' => ['required', 'string', 'max:255'],
             'descricao' => ['required', 'string'],
             'prioridade' => ['required', 'string', 'in:baixa,media,alta,urgente'],
-            'usuario_id' => ['required', 'exists:users,id'],
             'categoria_id' => ['required', 'exists:categorias,id'],
         ];
     }

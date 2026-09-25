@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AssumirChamadoRequest extends FormRequest
@@ -11,10 +10,9 @@ class AssumirChamadoRequest extends FormRequest
     {
         return true;
     }
+
     public function rules(): array
     {
-        return [
-            'tecnico_id' => ['required', 'exists:users,id'],
-        ];
+        return [];
     }
 }
