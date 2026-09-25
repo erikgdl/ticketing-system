@@ -17,9 +17,15 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ([
+            ['name' => 'Usuário Solicitante', 'email' => 'usuario@nexoti.com', 'tipo' => 'solicitante'],
+            ['name' => 'Técnico NexoTI', 'email' => 'tecnico@nexoti.com', 'tipo' => 'tecnico'],
+            ['name' => 'Administrador NexoTI', 'email' => 'admin@nexoti.com', 'tipo' => 'admin'],
+        ] as $usuario) {
+            User::updateOrCreate(
+                ['email' => $usuario['email']],
+                [...$usuario, 'password' => 'password']
+            );
+        }
     }
 }

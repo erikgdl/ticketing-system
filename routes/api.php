@@ -1,21 +1,20 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ChamadoController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::post('/login', [AuthController::class, 'login']);
 
-Route::apiResource('categorias', CategoriaController::class);
-Route::apiResource('chamados', ChamadoController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir']);
-
-Route::post('chamados/{chamado}/comentarios', [ChamadoController::class, 'adicionarComentario']);
-
-Route::post('chamados/{chamado}/finalizar', [ChamadoController::class, 'finalizar']);
-
-Route::post('chamados/{chamado}/cancelar', [ChamadoController::class, 'cancelar']);
+    Route::apiResource('categorias', CategoriaController::class);
+    Route::apiResource('chamados', ChamadoController::class);
+    Route::post('chamados/{chamado}/assumir', [ChamadoController::class, 'assumir']);
+    Route::post('chamados/{chamado}/comentarios', [ChamadoController::class, 'adicionarComentario']);
+    Route::post('chamados/{chamado}/finalizar', [ChamadoController::class, 'finalizar']);
+    Route::post('chamados/{chamado}/cancelar', [ChamadoController::class, 'cancelar']);
+});
